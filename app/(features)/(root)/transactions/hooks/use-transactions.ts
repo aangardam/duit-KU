@@ -2,7 +2,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import { create, createMonthlyAllocations, deleteMonthlyAllocationsByMonthAndUser, findTransactionById, update } from "../services/transactions.service";
+import {
+  create,
+  createMonthlyAllocations,
+  deleteMonthlyAllocationsByMonthAndUser,
+  findTransactionById,
+  getMonthlyExpense,
+  update,
+  updateMonthlyExpense,
+} from "../services/transactions.service";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -11,6 +19,7 @@ import { dateNow, dateToString } from "@/shared/lib/utils";
 import { TTransactionsPayload } from "../interfaces/transactions";
 import { getBudgetingByUser } from "../../master/budgeting/services/budgeting.service";
 import { getWalletByid, updateBalance } from "../../master/wallets/services/wallets.service";
+import { findCategoryById } from "../../master/category/services/category.service";
 
 const schema = z.object({
   wallet_id: z.string(),
@@ -51,18 +60,18 @@ const useTransactions = (data?: any, onClose?: () => void) => {
 
   const action = async (payload: TTransactionsPayload) => {
     try {
-      // === Step 1: Rollback saldo lama jika update ===
+      // === Step 1: Rollback saldo & total_expense lama jika update ===
       if (IdTransaction !== 0) {
         const oldTransaction = (await findTransactionById(IdTransaction))[0];
         await rollbackWalletBalance(oldTransaction);
       }
 
-      // === Step 2: Jika edit gaji, hapus monthly allocations lalu buat ulang ===
+      // === Step 2: Jika edit gaji, hapus monthly allocations lalu buat ulang (total_expense tetap) ===
       if (IdTransaction !== 0) {
         await updateMonthlyAllocationsIfSalary(payload, user);
       }
 
-      // === Step 3: Terapkan saldo baru ===
+      // === Step 3: Terapkan saldo baru & update total_expense jika perlu ===
       await applyNewWalletBalance(payload, user, IdTransaction === 0);
 
       // === Step 4: Update / Create transaksi ===
@@ -132,25 +141,43 @@ export default useTransactions;
 // =========================
 // ==== HELPER FUNCTIONS ===
 // =========================
+
+// Rollback saldo & total_expense lama saat update
 const rollbackWalletBalance = async (transaction: any) => {
   const oldWallet = await getWalletByid(`${transaction.wallet_id}`);
 
   if (transaction.type === "income") {
     await updateBalance(oldWallet[0].id, `${oldWallet[0].balance - Number(transaction.amount)}`);
   }
+
   if (transaction.type === "expense") {
     await updateBalance(oldWallet[0].id, oldWallet[0].balance + Number(transaction.amount));
+
+    // Rollback total_expense
+    await updateMonthlyAllocationExpense(
+      transaction.user_id,
+      dateNow().slice(0, 7),
+      Number(transaction.category_id),
+      -Number(transaction.amount) // negatif untuk rollback
+    );
   }
+
   if (transaction.type === "transfer") {
     const oldRelatedWallet = await getWalletByid(`${transaction.related_wallet_id}`);
     await updateBalance(oldWallet[0].id, oldWallet[0].balance + Number(transaction.amount));
-    await updateBalance(oldRelatedWallet[0].id, `${oldRelatedWallet[0].balance - Number(transaction.amount)}`);
+    await updateBalance(
+      oldRelatedWallet[0].id,
+      `${oldRelatedWallet[0].balance - Number(transaction.amount)}`
+    );
   }
 };
 
+// Terapkan saldo baru + update total_expense
 const applyNewWalletBalance = async (payload: TTransactionsPayload, user: string, isNew: boolean) => {
   const wallet = await getWalletByid(`${payload.wallet_id}`);
   let category;
+  const categoryId = payload.category_id?.split("#")[0];
+
   if (payload.type === "income" || payload.type === "expense") {
     category = payload.category_id?.split("#")[1] ?? "";
   }
@@ -164,18 +191,28 @@ const applyNewWalletBalance = async (payload: TTransactionsPayload, user: string
 
   if (payload.type === "expense") {
     await updateBalance(wallet[0].id, `${wallet[0].balance - Number(payload.amount)}`);
+    await updateMonthlyAllocationExpense(
+      user,
+      dateNow().slice(0, 7),
+      Number(categoryId),
+      Number(payload.amount)
+    );
   }
 
   if (payload.type === "transfer") {
     await updateBalance(wallet[0].id, `${wallet[0].balance - Number(payload.amount)}`);
     const relatedWalletId = await getWalletByid(`${payload.related_wallet_id}`);
-    await updateBalance(relatedWalletId[0].id, relatedWalletId[0].balance + Number(payload.amount));
+    await updateBalance(
+      relatedWalletId[0].id,
+      relatedWalletId[0].balance + Number(payload.amount)
+    );
   }
 };
 
+// Buat allocations dari gaji
 const createMonthlyAllocationsForSalary = async (amount: string, user: string) => {
   const budgetings = await getBudgetingByUser(user);
-  const allocationsPayload = budgetings.map(b => ({
+  const allocationsPayload = budgetings.map((b) => ({
     user_id: `${user}`,
     budget_id: Number(b.id),
     month: dateNow().slice(0, 7),
@@ -185,10 +222,43 @@ const createMonthlyAllocationsForSalary = async (amount: string, user: string) =
   await createMonthlyAllocations(allocationsPayload);
 };
 
+// Update allocations untuk gaji (total_expense tetap)
 const updateMonthlyAllocationsIfSalary = async (payload: TTransactionsPayload, user: string) => {
   const category = payload.category_id?.split("#")[1] ?? "";
   if (payload.type === "income" && category === "Gaji") {
-    await deleteMonthlyAllocationsByMonthAndUser(dateNow().slice(0, 7), user);
+    const month = dateNow().slice(0, 7);
+
+    // Simpan total_expense lama
+    const budgetings = await getBudgetingByUser(user);
+    const oldExpenses: Record<number, number> = {};
+    for (const b of budgetings) {
+      const monthlyExpense = await getMonthlyExpense(user, month, Number(b.id));
+      oldExpenses[Number(b.id)] = Number(monthlyExpense[0]?.total_expense ?? 0);
+    }
+
+    // Hapus & buat ulang allocations
+    await deleteMonthlyAllocationsByMonthAndUser(month, user);
     await createMonthlyAllocationsForSalary(payload.amount, user);
+
+    // Restore total_expense lama
+    for (const b of budgetings) {
+      await updateMonthlyExpense(user, month, Number(b.id), oldExpenses[Number(b.id)]);
+    }
   }
+};
+
+// Update total_expense (+ atau -)
+const updateMonthlyAllocationExpense = async (
+  user: string,
+  month: string,
+  categoryId: number,
+  amount: number
+) => {
+  const category = await findCategoryById(Number(categoryId));
+  const budgetId = category[0].budget_id;
+
+  const monthlyExpense = await getMonthlyExpense(user, month, budgetId);
+  const totalExpense = Number(monthlyExpense[0]?.total_expense ?? 0) + amount;
+
+  await updateMonthlyExpense(user, month, budgetId, totalExpense);
 };

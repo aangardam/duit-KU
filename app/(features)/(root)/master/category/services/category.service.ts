@@ -42,3 +42,14 @@ export const update = async (id:number, name:string, type:string, budget_id:stri
     }
     return data;
 };
+
+export const findCategoryById = async (id:number) => {
+    const { data, error } = await supabase
+        .from('category')
+        .select()
+        .eq('id', id)
+    if (error) {
+        throw error;
+    }
+    return data;
+};

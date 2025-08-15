@@ -93,3 +93,31 @@ export const findTransactionById = async (id:number) => {
     return data;
 };
 
+export const updateMonthlyExpense = async (user: string, month: string, budget_id: number, amount: number) => {
+    const { data, error } = await supabase
+        .from('monthly_allocations')
+        .update(
+            {
+                total_expense: amount,
+            })
+        .match({ user_id: user, month: month, budget_id: budget_id })
+        .select()
+    if (error) {
+        throw error;
+    }
+    return data;
+};
+
+export const getMonthlyExpense = async (user: string, month: string, budget_id: number) => {
+    const { data, error } = await supabase
+        .from('monthly_allocations')
+        .select()
+        .eq('user_id', user)
+        .eq('month', month)
+        .eq('budget_id', budget_id)
+    if (error) {
+        throw error;
+    }
+    return data;
+};
+
