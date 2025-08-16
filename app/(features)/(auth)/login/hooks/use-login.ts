@@ -36,6 +36,7 @@ const useLogin = () => {
         
         try {
             const res = await login(email, password)
+            console.log(res.user.id)
             if (res) {
                 setUser(res.user.id)
                 setToken(res.session.access_token)

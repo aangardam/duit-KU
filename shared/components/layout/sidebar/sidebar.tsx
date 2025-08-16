@@ -6,8 +6,12 @@ import { Separator } from "../../ui/separator"
 import useSidebarCustom from "@/shared/hooks/use-sidebar"
 import SidebarMenu from "./sidebar-menu"
 import { useRouter } from "next/navigation"
+import { useUserStore } from "@/shared/store/user.store"
+import { useQueryClient } from "@tanstack/react-query"
 
 const Sidebar = () => {
+  const queryClient = useQueryClient();
+  const { setUser } = useUserStore()
   const router = useRouter()
   const {
     sidebarOpen = true,
@@ -18,6 +22,8 @@ const Sidebar = () => {
   } = useSidebarCustom()
 
   const handleLogout = () => {
+    setUser(null)
+    queryClient.clear();
     localStorage.removeItem('user-storage')
     router.push('/login')
   }

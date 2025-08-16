@@ -121,3 +121,27 @@ export const getMonthlyExpense = async (user: string, month: string, budget_id: 
     return data;
 };
 
+export const getTotalGaji = async (
+  month: number,
+  year: number,
+  user_id: string
+) => {
+  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+  const endDate = `${year}-${String(month).padStart(2, "0")}-31`;
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("amount, category:category_id(name)")
+    .gte("date", startDate)
+    .lte("date", endDate)
+    .eq("type", "income")
+    .eq("user_id", user_id)
+    .eq("category.name", "Gaji");
+
+  if (error) throw error;
+
+  const total = data.reduce((sum, t) => sum + t.amount, 0);
+  return total;
+};
+
+

@@ -67,7 +67,6 @@ export function getBadgeColor(status: string): Variant {
 
 //format currency
 export function formatCurrency(amount: number | null, currency = 'IDR') {
-  console.log(amount, currency);
   if (amount === null || currency === null) {
       return '-';
   }

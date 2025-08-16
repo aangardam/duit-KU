@@ -61,13 +61,27 @@ export const getWalletByid = async (wallet_id:string) => {
     return data;
 };
 
-export const findAllWallets = async () => {
+export const findAllWallets = async (userId: string) => {
     const { data, error } = await supabase
         .from('wallets')
         .select()
+        .eq('user_id', userId);
     if (error) {
         throw error;
     }
     return data;
 };
+
+export const getTotalBalance = async (userId: string) => {
+    const { data, error } = await supabase
+        .from('wallets')
+        .select('balance')
+        .eq('user_id', userId);
+
+    if (error) throw error;
+
+    return data.reduce((sum, item) => sum + (item.balance || 0), 0);
+};
+
+
 
