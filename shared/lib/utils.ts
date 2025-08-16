@@ -177,3 +177,21 @@ export function getDialogSizeClass(size: DialogSize = "lg"){
         return "w-full max-w-3xl";
     }
 }
+
+export const monthNames = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+]
+
+export const generateYearRange = (currentYear: number, range = 3) =>
+    Array.from({ length: range * 1 + 1 }, (_, i) => currentYear - range + i)

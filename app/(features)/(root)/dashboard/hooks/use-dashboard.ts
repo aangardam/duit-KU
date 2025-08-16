@@ -1,17 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { findAllWallets, getTotalBalance } from "../../master/wallets/services/wallets.service";
 import { useUserStore } from "@/shared/store/user.store";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { getTotalSalary } from "../../transactions/services/transactions.service";
 import { getMonthlyAllocation } from "@/shared/service/monthly-allocation.service";
-
-
+import { generateYearRange, monthNames } from "@/shared/lib/utils";
 
 const useDashboard = () => {
     const { user } = useUserStore();
-    const currentDate = new Date()
+    const currentDate = useMemo(() => new Date(), [])
     const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth())
     const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear())
+    const years = useMemo(() => generateYearRange(currentDate.getFullYear()), [currentDate])
 
     // total balance
     const { data: totalBalance, isPending: isPendingTotalBalance } = useQuery({
@@ -28,25 +28,7 @@ const useDashboard = () => {
     });    
 
 
-    const monthNames = [
-        "Januari",
-        "Februari",
-        "Maret",
-        "April",
-        "Mei",
-        "Juni",
-        "Juli",
-        "Agustus",
-        "September",
-        "Oktober",
-        "November",
-        "Desember",
-    ]
-
-    const years = Array.from({ length: 5 }, (_, i) => currentDate.getFullYear() - 2 + i)
-
     // total gaji
-    // console.log(user)
     const { data: totalSalary} = useQuery({
         queryKey: ["total-salary", user, selectedMonth, selectedYear],
         queryFn: () => getTotalSalary(selectedMonth + 1, selectedYear, user),
@@ -54,7 +36,6 @@ const useDashboard = () => {
     });
 
     // get allocation
-    // `${year}-${String(month).padStart(2, "0")}-01`
     const month = `${selectedYear}/${String(selectedMonth+1).padStart(2, "0")}`;
     const { data: allocation } = useQuery({
         queryKey: ["allocation", user, selectedMonth, selectedYear],
@@ -62,7 +43,6 @@ const useDashboard = () => {
         enabled: !!user
     });
 
-    console.log(allocation)
  
     return {
         totalBalance,
