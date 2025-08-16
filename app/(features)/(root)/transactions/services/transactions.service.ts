@@ -121,7 +121,7 @@ export const getMonthlyExpense = async (user: string, month: string, budget_id: 
     return data;
 };
 
-export const getTotalGaji = async (
+export const getTotalSalary = async (
   month: number,
   year: number,
   user_id: string

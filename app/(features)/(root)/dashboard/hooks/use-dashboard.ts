@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { findAllWallets, getTotalBalance } from "../../master/wallets/services/wallets.service";
 import { useUserStore } from "@/shared/store/user.store";
 import { useState } from "react";
-import { getTotalGaji } from "../../transactions/services/transactions.service";
+import { getTotalSalary } from "../../transactions/services/transactions.service";
 import { getMonthlyAllocation } from "@/shared/service/monthly-allocation.service";
 
 
@@ -47,9 +47,9 @@ const useDashboard = () => {
 
     // total gaji
     // console.log(user)
-    const { data: totalGaji} = useQuery({
-        queryKey: ["total-gaji", user, selectedMonth, selectedYear],
-        queryFn: () => getTotalGaji(selectedMonth + 1, selectedYear, user),
+    const { data: totalSalary} = useQuery({
+        queryKey: ["total-salary", user, selectedMonth, selectedYear],
+        queryFn: () => getTotalSalary(selectedMonth + 1, selectedYear, user),
         enabled: !!user
     });
 
@@ -75,7 +75,7 @@ const useDashboard = () => {
         setSelectedYear,
         monthNames,
         years,
-        totalGaji,
+        totalSalary,
         allocation,
     }
 }   
