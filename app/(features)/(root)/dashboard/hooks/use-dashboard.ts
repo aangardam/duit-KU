@@ -3,7 +3,7 @@ import { findAllWallets, getTotalBalance } from "../../master/wallets/services/w
 import { useUserStore } from "@/shared/store/user.store";
 import { useMemo, useState } from "react";
 import { getTotalSalary } from "../../transactions/services/transactions.service";
-import { getMonthlyAllocation } from "@/shared/service/monthly-allocation.service";
+import { getMonthlyAllocation, getTotalMonthlyAllocation } from "@/shared/service/monthly-allocation.service";
 import { generateYearRange, monthNames } from "@/shared/lib/utils";
 
 const useDashboard = () => {
@@ -31,7 +31,8 @@ const useDashboard = () => {
     // total gaji
     const { data: totalSalary} = useQuery({
         queryKey: ["total-salary", user, selectedMonth, selectedYear],
-        queryFn: () => getTotalSalary(selectedMonth + 1, selectedYear, user),
+        // queryFn: () => getTotalSalary(selectedMonth + 1, selectedYear, user),
+        queryFn:() => getTotalMonthlyAllocation(selectedMonth + 1, selectedYear, user),
         enabled: !!user
     });
 

@@ -60,3 +60,21 @@ export const getMonthlyExpense = async (user: string, month: string, budget_id: 
   }
   return data;
 };
+
+export const getTotalMonthlyAllocation = async (
+  month: number,
+  year: number,
+  user_id: string
+) => {
+  const monthString = `${year}/${String(month).padStart(2, "0")}`;
+  const { data, error } = await supabase
+    .from("monthly_allocations")
+    .select("amount")
+    .eq("month", monthString)
+    .eq("user_id", user_id);
+  if (error) {
+    throw error;
+  }
+  const total = data.reduce((sum, t) => sum + t.amount, 0);
+  return total;
+};
