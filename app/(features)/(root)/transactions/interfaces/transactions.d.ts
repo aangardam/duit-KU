@@ -28,6 +28,7 @@ export type TTransactionsPayload = {
     amount: string;
     date: string;
     description: string;
+    monthly_allocations?: boolean;
 };
 
 export type TTransactionMonthlyAllocationsPayload = {

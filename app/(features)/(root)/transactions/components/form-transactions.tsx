@@ -8,6 +8,7 @@ import { BsDownload, BsXLg } from "react-icons/bs";
 import FormSelect from "@/shared/components/form/form-select";
 import useDropdown from "@/shared/hooks/use-dropdown";
 import FormDatepickerv2 from "@/shared/components/form/form-datepickerv2";
+import FormCheckbox from "@/shared/components/form/form-checkbox";
 
 interface PropTypes {
     data?: TTransactions;
@@ -75,12 +76,16 @@ const FormTransaction = (props:PropTypes) => {
                         /> 
                     )}
 
-                    <FormInput 
-                        name="name" 
-                        label="Name"
-                        placeholder="Input Name" 
-                        control={form.control}
-                    />
+                    {form.watch('type') === 'income' && (
+                        <FormCheckbox 
+                            name="monthly_allocations"
+                            label="Use this transaction to create a monthly plan"
+                            control={form.control}
+                            isRequired={false}
+                            description={`If checked, this income transaction will be automatically allocated to the monthly budget (Planned Expenses) and appear on the ‘Planned’ dashboard`}
+                        />
+                    )}
+                    
 
                     <FormInput 
                         name="amount"
@@ -96,6 +101,7 @@ const FormTransaction = (props:PropTypes) => {
                         placeholder="Input description"
                         control={form.control}
                         type="textArea"
+                        isRequired={false}
                     />
                     
                     

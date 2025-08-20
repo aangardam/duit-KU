@@ -74,33 +74,6 @@ export const columns: ColumnDef<TTransactions>[] = [
         },
     },
     {
-        accessorKey:"name",
-        header:({column}) => {
-            return(
-                <Button
-                    variant={"ghost"}
-                    size={"sm"}
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                    Name
-                    <ArrowUp 
-                        className={`ml-2 h-4 w-full ${
-                        column.getIsSorted() === "asc" ? "" : "rotate-180"
-                        } `}
-                    />
-
-                </Button>
-            )
-        },
-        cell: ({ row }) => {
-            return(
-                <div >
-                    {row.original.name}
-                </div>
-            )
-        },
-    },
-    {
         accessorKey:"wallets.name",
         header:({column}) => {
             return(
@@ -186,6 +159,33 @@ export const columns: ColumnDef<TTransactions>[] = [
             return(
                 <div >
                     Rp. {formatRupiah(`${row.original.amount}`)}
+                </div>
+            )
+        },
+    },
+    {
+        accessorKey:"description",
+        header:({column}) => {
+            return(
+                <Button
+                    variant={"ghost"}
+                    size={"sm"}
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                    Description
+                    <ArrowUp 
+                        className={`ml-2 h-4 w-full ${
+                        column.getIsSorted() === "asc" ? "" : "rotate-180"
+                        } `}
+                    />
+
+                </Button>
+            )
+        },
+        cell: ({ row }) => {
+            return(
+                <div >
+                    {row.original.description}
                 </div>
             )
         },

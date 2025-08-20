@@ -32,6 +32,17 @@ const FormLogin = () => {
                             Login
                         </Button>
                     </div>
+                    <div className="flex justify-center">
+                        <p className="text-sm text-gray-500 text-center">
+                            Don{"'"}t have an account?{" "}
+                            <a
+                                href="#"
+                                className="text-green-700 hover:text-green-800 cursor-pointer"
+                            >
+                                Sign up
+                            </a>
+                        </p>
+                    </div>
                 </form>
             </Form>
         </div>
