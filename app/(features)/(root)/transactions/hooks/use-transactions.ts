@@ -128,6 +128,12 @@ const useTransactions = (data?: any, onClose?: () => void) => {
     mutationFn: action,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({
+          queryKey: ["total-salary"],
+      })
+      queryClient.invalidateQueries({
+          queryKey: ["allocation"],
+      })
       toast.success(
         transactionId !== 0
           ? "Transaction updated successfully"

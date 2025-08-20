@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { findAllWallets, getTotalBalance } from "../../master/wallets/services/wallets.service";
 import { useUserStore } from "@/shared/store/user.store";
 import { useMemo, useState } from "react";
-import { getTotalSalary } from "../../transactions/services/transactions.service";
 import { getMonthlyAllocation, getTotalMonthlyAllocation } from "@/shared/service/monthly-allocation.service";
 import { generateYearRange, monthNames } from "@/shared/lib/utils";
 
