@@ -31,7 +31,7 @@ export default function Client(props:PropTypes) {
     totalFilteredData,
   } = useTableData<TTransactionsResponse>({
     table: 'transactions',
-    searchFields: ['name', 'type'],
+    searchFields: ['name', 'type', 'description'],
     filters: { user_id: user },
     relations: 'wallets(name), category(name)',
     customFilterFn: (query) => {
