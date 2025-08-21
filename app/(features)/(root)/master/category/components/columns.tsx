@@ -6,6 +6,7 @@ import { Button } from "@/shared/components/ui/button"
 import { ArrowUp } from "lucide-react"
 import { CellAction } from "@/shared/components/ui/cell-action"
 import FormCategory from "./form-category"
+import { capitalizeFirst } from "@/shared/lib/utils"
 
 export const columns: ColumnDef<TCategory>[] = [
     {
@@ -22,18 +23,25 @@ export const columns: ColumnDef<TCategory>[] = [
         header:({column}) => {
             return(
                 <Button
-                variant={"ghost"}
-                size={"sm"}
-                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    variant={"ghost"}
+                    size={"sm"}
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                Type
-                <ArrowUp 
-                    className={`ml-2 h-4 w-full ${
-                    column.getIsSorted() === "asc" ? "" : "rotate-180"
-                    } `}
-                />
+                    Type
+                    <ArrowUp 
+                        className={`ml-2 h-4 w-full ${
+                        column.getIsSorted() === "asc" ? "" : "rotate-180"
+                        } `}
+                    />
 
                 </Button>
+            )
+        },
+        cell: ({ row }) => {
+            return(
+                <div >
+                    {capitalizeFirst(row.original.type)}
+                </div>
             )
         },
     },

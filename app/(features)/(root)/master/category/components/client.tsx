@@ -8,7 +8,7 @@ import { useTableData } from '@/shared/hooks/use-table-data';
 import { DataTable } from '@/shared/components/ui/data-table';
 import { useState } from 'react';
 import DialogAdd from '@/shared/components/ui/dialog-add';
-import FormWallet from './form-category';
+import FormCategory from './form-category';
 import { useUserStore } from '@/shared/store/user.store';
 
 export default function Client() {
@@ -54,9 +54,9 @@ export default function Client() {
         <DialogAdd
             open={open}
             onOpenChange={setOpen}
-            title="Wallet"
+            title="Category"
         >
-            <FormWallet onClose={() => setOpen(false)} />
+            <FormCategory onClose={() => setOpen(false)} />
         </DialogAdd>
     </div>
   );
