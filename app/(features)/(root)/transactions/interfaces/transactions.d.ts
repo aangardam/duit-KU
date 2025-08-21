@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type TTransactions = {
     id: number;
     rowNum?: number;
@@ -37,4 +38,12 @@ export type TTransactionMonthlyAllocationsPayload = {
     month: string;
     percentage: string;
     amount: string;
+}
+
+export type TFilterTransactions = {
+    startDateTransaction: any;
+    endDateTransaction: any;
+    walletId: string;
+    categoryId: string;
+    type: string;
 }

@@ -9,12 +9,13 @@ interface GetTableOptions {
   limit: number;
   sorting: { id: string; desc: boolean }[];
   filters?: Record<string, any>;
-  relations?: string; // NEW: untuk join
+  relations?: string; 
+  customFilterFn?: (query: any) => any;
 }
 
-function mapColumnKey(key: string) {
-  return key.replace(/_/g, '.'); // ubah semua "_" jadi "."
-}
+// function mapColumnKey(key: string) {
+//   return key.replace(/_/g, '.'); // ubah semua "_" jadi "."
+// }
 
 export async function getTableDataSupabase<T>({
   table,
@@ -25,6 +26,7 @@ export async function getTableDataSupabase<T>({
   sorting,
   filters = {},
   relations,
+  customFilterFn,
 }: GetTableOptions) {
   let selectString = '*';
   if (relations) {
@@ -52,6 +54,10 @@ export async function getTableDataSupabase<T>({
       query = query.eq(key, value);
     }
   });
+
+  if (customFilterFn) {
+    query = customFilterFn(query);
+  }
 
   // Pagination
   query = query.range(skip, skip + limit - 1);

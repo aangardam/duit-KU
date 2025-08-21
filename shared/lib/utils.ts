@@ -126,6 +126,7 @@ export function maxMinLength(
   inputElement.value = correctedValue.toString();
 }
 
+
 export function dateNow() {
   const date = new Date();
   const year = date.getFullYear();

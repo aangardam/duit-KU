@@ -14,6 +14,8 @@ interface UseTableOptions {
   searchFields?: string[]; // kolom yang akan dicari
   filters?: Record<string, any>; // tambahan filter eq
   relations?: string;
+  customFilterFn?: (query: any) => any;
+  extraKey?: unknown;
 }
 
 export function useTableData<T>(options: UseTableOptions) {
@@ -38,7 +40,7 @@ export function useTableData<T>(options: UseTableOptions) {
     data: result,
     isPending,
   } = useQuery({
-    queryKey: [options.table, body, options.filters],
+    queryKey: [options.table, body, options.filters, options.extraKey],
     queryFn: () =>
       getTableDataSupabase<T>({
         ...body,
@@ -46,6 +48,7 @@ export function useTableData<T>(options: UseTableOptions) {
         searchFields: options.searchFields,
         filters: options.filters,
         relations: options.relations,
+        customFilterFn: options.customFilterFn,
       }),
   });
 

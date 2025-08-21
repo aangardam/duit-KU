@@ -20,6 +20,7 @@ interface PropTypes {
     loading?: boolean;
     type?:"single" | "multiple";
     isDisabled?: boolean;
+    isFilter?: boolean;
 }
 
 const FormSelect = (props: PropTypes) => {
@@ -33,6 +34,7 @@ const FormSelect = (props: PropTypes) => {
         loading = false,
         type = "single",
         isDisabled = false,
+        isFilter = false,
     } = props;
     // console.log(listData)
     return (
@@ -60,7 +62,7 @@ const FormSelect = (props: PropTypes) => {
                         <FormControl>
                         <CoolSelect<SelectOption, any>
                             options={listData}
-                            value={value}
+                            value={value ?? []}
                             onChange={(newValues) => {
                                 // console.log(newValues)
                                 if(type === "single"){
@@ -82,10 +84,13 @@ const FormSelect = (props: PropTypes) => {
                             closeMenuOnSelect={type === "multiple" ? false : undefined}
                             isClearable={type === "multiple" ? false : undefined}
 
-                            styles={{
-                                menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-                                menu: (base) => ({ ...base, zIndex: 9999 }),
-                            }}
+                            // styles={{
+                            //     menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                            //     menu: (base) => ({ ...base, zIndex: 9999 }),
+                            // }}
+                                
+                                // filter
+                            menuPortalTarget={isFilter ? document.body : undefined}
                         />
                         </FormControl>
                         <FormMessage />

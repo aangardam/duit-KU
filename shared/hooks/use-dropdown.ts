@@ -29,13 +29,14 @@ const useDropdown = (type?: string) => {
         const fetchData = async () => {
             try {
                 const data = await getDropdownCategoryByType(typeParam);
-                console.log(data);
+                // console.log('data', data);
 
                 // Kalau mau format untuk dropdown
                 const format = data.map((item: any) => ({
                     value: `${item.id}#${item.name}`,
                     label: item.name
                 }));
+                // console.log('format', format);
                 setDropdownCategoryByType(format);
             } catch (error) {
                 console.error("Error fetching categories:", error);
@@ -44,6 +45,8 @@ const useDropdown = (type?: string) => {
 
         fetchData();
     }, [typeParam]);
+
+    // console.log('dropdownCategoryByType', dropdownCategoryByType);
 
     // const { data: tmpdropdownCategoryByType, isPending: isPendingCategoryByType } = useQuery({
     //     queryKey: ['dropdown-category-by-type'],

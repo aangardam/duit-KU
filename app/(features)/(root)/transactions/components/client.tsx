@@ -2,7 +2,7 @@
 'use client'
 
 import { columns } from './columns';
-import { TTransactionsResponse } from '../interfaces/transactions';
+import { TFilterTransactions, TTransactionsResponse } from '../interfaces/transactions';
 import { useTableData } from '@/shared/hooks/use-table-data';
 import { DataTable } from '@/shared/components/ui/data-table';
 import { useState } from 'react';
@@ -10,7 +10,13 @@ import DialogAdd from '@/shared/components/ui/dialog-add';
 import { useUserStore } from '@/shared/store/user.store';
 import FormTransaction from './form-transactions';
 
-export default function Client() {
+
+interface PropTypes {
+  dataFilter: TFilterTransactions;
+}
+
+export default function Client(props:PropTypes) {
+  const { startDateTransaction, endDateTransaction, categoryId, type, walletId } = props.dataFilter
   const { user } = useUserStore();
   const {
     data,
@@ -28,6 +34,22 @@ export default function Client() {
     searchFields: ['name', 'type'],
     filters: { user_id: user },
     relations: 'wallets(name), category(name)',
+    customFilterFn: (query) => {
+      if (startDateTransaction && endDateTransaction) {
+        query = query.gte('date', startDateTransaction).lte('date', endDateTransaction);
+      }
+      if (categoryId) {
+        query = query.eq('category_id', categoryId);
+      }
+      if (type) {
+        query = query.eq('type', type);
+      }
+      if (walletId) {
+        query = query.eq('wallet_id', walletId);
+      }
+      return query;
+    },
+    extraKey: { startDateTransaction, endDateTransaction, categoryId, type, walletId },
   });
   
 
